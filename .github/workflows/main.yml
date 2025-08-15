@@ -1,0 +1,64 @@
+# .github/workflows/react-ftp-deploy.yml
+name: Build & Deploy React (FTP)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: react-ftp-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        # Works for CRA or Vite as long as "build" script exists
+        run: npm run build
+
+      - name: Detect build output dir (dist or build)
+        id: detect
+        shell: bash
+        run: |
+          if [ -d "dist" ]; then echo "outdir=dist" >> $GITHUB_OUTPUT;
+          elif [ -d "build" ]; then echo "outdir=build" >> $GITHUB_OUTPUT;
+          else echo "No dist/ or build/ folder found after build" && exit 1; fi
+          echo "Detected: ${{ steps.detect.outputs.outdir }}"
+
+      - name: Deploy via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}         # e.g. ftp.yourhost.com
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps                            # use FTPS for encryption
+          port: 21                                  # or your host's FTPS port
+          security: strict                          # verify TLS cert
+          timeout: 60000
+          local-dir: ${{ steps.detect.outputs.outdir }}/
+          server-dir: /        # set to your real target dir, must end with /
+          exclude: |                                 # optional (local-dir is already just static files)
+            **/.git*
+            **/.github*
+            **/node_modules/**
+            **/README.md
