@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, MapPin, Phone, Send, Github, Linkedin, Twitter } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Github, Linkedin, Twitter,MessageCircle } from 'lucide-react';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -75,6 +75,35 @@ const Contact = () => {
       color: 'hover:text-blue-400'
     }
   ];
+  const WHATSAPP_NUMBER = '919987887543'; // <-- 91 + your number without + or spaces
+
+  const buildPrefill = () => {
+    const { name, email, message } = formData;
+    return [
+      `Hi, I'm ${name || '—'}.`,
+      email ? `Email: ${email}` : '',
+      '',
+      message || 'I would like to discuss a project.'
+    ].filter(Boolean).join('\n');
+  };
+
+  const openWhatsApp = () => {
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildPrefill())}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const openGmailCompose = () => {
+    const subject = 'Project inquiry';
+    const body = buildPrefill();
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=knitsera@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const openMailto = () => {
+    const subject = 'Project inquiry';
+    const body = buildPrefill();
+    window.location.href = `mailto:knitsera@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
 
   return (
     <section id="contact" className="py-20 bg-gray-900">
@@ -147,6 +176,39 @@ const Contact = () => {
                 <Send size={18} />
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
+
+              <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={openWhatsApp}
+                  className="w-full bg-green-600/90 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+                  aria-label="Message on WhatsApp"
+                >
+                  <MessageCircle size={18} />
+                  Message on WhatsApp
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openGmailCompose}
+                  className="w-full bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+                  aria-label="Compose in Gmail"
+                >
+                  <Send size={18} />
+                  Compose in Gmail
+                </button>
+              </div>
+
+              {/* Tiny fallback link for non-Gmail users */}
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={openMailto}
+                  className="text-sm text-gray-300 hover:text-purple-300 underline underline-offset-4"
+                >
+                  …or use your default email app
+                </button>
+              </div>
               
               {submitStatus === 'success' && (
                 <div className="mt-4 p-4 bg-green-600/20 border border-green-600/30 rounded-lg">
