@@ -51,7 +51,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}         # e.g. ftp.yourhost.com
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps                            # use FTPS for encryption
+          protocol: ftp                            # use FTPS for encryption
           port: 21                                  # or your host's FTPS port
           security: strict                          # verify TLS cert
           timeout: 60000
