@@ -45,19 +45,19 @@ jobs:
           else echo "No dist/ or build/ folder found after build" && exit 1; fi
           echo "Detected: ${{ steps.detect.outputs.outdir }}"
 
-      - name: Deploy via FTPS
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}         # e.g. ftp.yourhost.com
+          server: ${{ secrets.FTP_SERVER }}    
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp                            # use FTPS for encryption
-          port: 21                                  # or your host's FTPS port
-          security: strict                          # verify TLS cert
+          protocol: ftp                         # <-- plain FTP
+          port: 21
+          security: loose                       # no TLS, required for plain FTP
           timeout: 60000
           local-dir: ${{ steps.detect.outputs.outdir }}/
-          server-dir: /        # set to your real target dir, must end with /
-          exclude: |                                 # optional (local-dir is already just static files)
+          server-dir: /             # primary domain webroot
+          exclude: |
             **/.git*
             **/.github*
             **/node_modules/**
