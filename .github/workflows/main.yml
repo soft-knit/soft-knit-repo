@@ -56,7 +56,7 @@ jobs:
           security: loose                       # no TLS, required for plain FTP
           timeout: 60000
           local-dir: ${{ steps.detect.outputs.outdir }}/
-          server-dir: /             # primary domain webroot
+          server-dir: /domains/softknit.in/public_html/             # primary domain webroot
           exclude: |
             **/.git*
             **/.github*
